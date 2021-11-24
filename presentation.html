@@ -1,0 +1,142 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>
+      Synchronize MapView and SceneView | Sample | ArcGIS API for JavaScript
+      4.21
+    </title>
+
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.21/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.21/"></script>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/views/SceneView",
+        "esri/WebMap",
+        "esri/WebScene",
+        "esri/widgets/LayerList",
+        "esri/widgets/Expand"
+      ], (Map,
+      MapView,
+      SceneView,
+      WebMap,
+      WebScene,
+      LayerList,
+      Expand
+      ) => {
+        const map = new Map({
+          basemap: "satellite"
+        });
+
+        const webmap = new WebMap({
+          portalItem: {
+            id: "4199ba17ac424967aa0e739319957fb0"
+          }
+        });
+
+        const webscene = new WebScene({
+          portalItem: {
+            id: "936a3047186f457db20693f359ce90ae"
+          }
+        });
+        
+
+        const view1 = new SceneView({
+          container: "view1Div",
+          map: webscene
+        });
+
+        const view2 = new MapView({
+          container: "view2Div",
+          map: webmap,
+          constraints: {
+            // Disable zoom snapping to get the best synchronization
+            snapToZoom: false
+          }
+        });
+        
+        let sceneLayer = new LayerList({
+          view: view1,
+          container: document.createElement("div")
+        });
+        
+        let webLayer = new LayerList({
+          view: view2,
+          container: document.createElement("div")
+        });
+        
+
+
+        const views = [view1, view2];
+        let active;
+        
+         /////////////////////////////
+        const sceneExpand = new Expand({
+          view: view1,
+          content: sceneLayer
+        });
+        
+        const mapExpand = new Expand({
+          view: view2,
+          content: webLayer
+        });
+        
+        view1.ui.add(sceneExpand, "top-right");
+        
+        view2.ui.add(mapExpand, "top-right");
+
+        // close the expand whenever a basemap is selected
+
+          /////////////////////////////
+
+
+        const sync = (source) => {
+          if (!active || !active.viewpoint || active !== source) {
+            return;
+          }
+
+          for (const view of views) {
+            if (view !== active) {
+              view.viewpoint = active.viewpoint;
+            }
+          }
+        };
+
+        for (const view of views) {
+          view.watch(["interacting", "animation"], () => {
+            active = view;
+            sync(active);
+          });
+
+          view.watch("viewpoint", () => sync(view));
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="view1Div" style="float: left; width: 50%; height: 100%">
+      <div id="viewSceneDiv"></div>
+    </div>
+    <div id="view2Div" style="float: left; width: 50%; height: 100%">
+      <div id="viewMapDiv"></div>
+    </div>
+  </body>
+</html>
