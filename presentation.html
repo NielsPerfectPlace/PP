@@ -33,14 +33,16 @@
         "esri/WebMap",
         "esri/WebScene",
         "esri/widgets/LayerList",
-        "esri/widgets/Expand"
+        "esri/widgets/Expand",
+        "esri/widgets/Legend"
       ], (Map,
       MapView,
       SceneView,
       WebMap,
       WebScene,
       LayerList,
-      Expand
+      Expand,
+      Legend
       ) => {
         const map = new Map({
           basemap: "satellite"
@@ -128,15 +130,43 @@
 
           view.watch("viewpoint", () => sync(view));
         }
+        
+      const legend1 = new Legend ({
+        view:view1,
+        container: document.createElement("div")
+      });
+
+      
+      const legend2 = new Legend ({
+        view:view2,
+        container: document.createElement("div")
+      });
+      
+        const mapLegendExpand = new Expand({
+          view: view2,
+          content: legend2
+        });
+        
+        const sceneLegendExpand = new Expand({
+          view: view1,
+          content: legend1
+        });
+        
+        view1.ui.add(sceneLegendExpand, "bottom-left");
+        
+        view2.ui.add(mapLegendExpand, "bottom-left");
+
       });
     </script>
   </head>
   <body>
     <div id="view1Div" style="float: left; width: 50%; height: 100%">
       <div id="viewSceneDiv"></div>
+      <div id="LegendSceneDiv"></div>
     </div>
     <div id="view2Div" style="float: left; width: 50%; height: 100%">
       <div id="viewMapDiv"></div>
+      <div id="LegendMapDiv"></div>
     </div>
   </body>
 </html>
