@@ -17,6 +17,30 @@
         margin: 0;
         height: 100%;
       }
+      
+       #controls {
+         width: 500px;
+       }
+
+       #outer-container {
+         padding: 15px;
+         width: 500px;
+       }
+
+       #description{
+         padding: 10px 10px 0px 10px;
+         font-size: 14pt;
+       }
+
+       #titleDiv {
+         padding: 10px;
+       }
+
+       #titleText {
+         font-size: 20pt;
+         font-weight: 60;
+         padding-bottom: 10px;
+       }
     </style>
 
     <link
@@ -34,7 +58,12 @@
         "esri/WebScene",
         "esri/widgets/LayerList",
         "esri/widgets/Expand",
-        "esri/widgets/Legend"
+        "esri/widgets/Legend",
+        "esri/core/watchUtils",
+        "esri/core/Collection",
+        "esri/widgets/HistogramRangeSlider",
+        "esri/smartMapping/statistics/histogram",
+        "esri/core/promiseUtils"
       ], (Map,
       MapView,
       SceneView,
@@ -42,7 +71,12 @@
       WebScene,
       LayerList,
       Expand,
-      Legend
+      Legend,
+      watchUtils,
+      Collection,
+      HistogramRangeSlider,
+      histogram,
+      promiseUtils
       ) => {
         const map = new Map({
           basemap: "satellite"
@@ -129,6 +163,7 @@
           });
 
           view.watch("viewpoint", () => sync(view));
+          
         }
         
       const legend1 = new Legend ({
@@ -155,6 +190,78 @@
         view1.ui.add(sceneLegendExpand, "bottom-left");
         
         view2.ui.add(mapLegendExpand, "bottom-left");
+        
+
+        // Listen to layer change events on all of map's layers
+        
+          const filterExpand = new Expand({
+              view: view1,
+              content: document.getElementById("controls"),
+              expandIconClass: "esri-icon-filter",
+              expanded: false
+              
+            });
+
+          view1.ui.add(filterExpand, "bottom-left");
+        
+        var count = 0
+        // Only listening to layer added event in this case.
+        // Listen the view's click event.
+        view1.on("pointer-move", (event) => {
+          if (count===1){
+            return;
+          }
+          count = count + 1
+          console.log('test')
+          const layer = webscene.layers.getItemAt(10);
+          view1.whenLayerView(layer).then((layerView) => {
+          const field = "bouwjaar";
+          const min = 1950;
+          const max = 2021;
+          console.log(layer)
+
+          histogram({
+            layer: layer,
+            field: field,
+            numBins: 100,
+            minValue: min,
+            maxValue: max
+          }).then((histogramResponse) => {
+            const slider = new HistogramRangeSlider({
+              bins: histogramResponse.bins,
+              min: min,
+              max: max,
+              values: [min, max],
+              excludedBarColor: "#524e4e",
+              rangeType: "between",
+              container: document.getElementById("slider-container")
+            });
+
+            slider.on(
+              ["thumb-change", "thumb-drag", "segment-drag"],
+              (event) => {
+                filterByHistogramRange(field).catch((error) => {
+                  if (error.name !== "AbortError") {
+                    console.error(error);
+                  }
+                });
+              }
+            );
+
+            const filterByHistogramRange = promiseUtils.debounce((field) => {
+              layerView.filter = {
+                where: slider.generateWhereClause(field)
+              };
+            });
+
+          });
+        });
+      });
+
+
+        
+        
+          
 
       });
     </script>
@@ -163,6 +270,12 @@
     <div id="view1Div" style="float: left; width: 50%; height: 100%">
       <div id="viewSceneDiv"></div>
       <div id="LegendSceneDiv"></div>
+        <div id="controls" class="esri-widget">
+          <div id="description" class="esri-widget"> Bouwjaar </div>
+          <div id="outer-container" class="esri-widget">
+            <div id="slider-container"></div>
+          </div>
+      </div>
     </div>
     <div id="view2Div" style="float: left; width: 50%; height: 100%">
       <div id="viewMapDiv"></div>
