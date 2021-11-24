@@ -214,11 +214,12 @@
           count = count + 1
           console.log('test')
           const layer = webscene.layers.getItemAt(10);
+          const layer2 = webmap.layers.getItemAt(7);
+          
           view1.whenLayerView(layer).then((layerView) => {
           const field = "bouwjaar";
           const min = 1950;
           const max = 2021;
-          console.log(layer)
 
           histogram({
             layer: layer,
@@ -249,9 +250,13 @@
             );
 
             const filterByHistogramRange = promiseUtils.debounce((field) => {
+              view2.whenLayerView(layer2).then((layerView) => {layerView.filter = {
+                where: slider.generateWhereClause(field)
+              };});
               layerView.filter = {
                 where: slider.generateWhereClause(field)
               };
+              
             });
 
           });
