@@ -41,6 +41,60 @@
          font-weight: 60;
          padding-bottom: 10px;
        }
+       
+       #topbar {
+        background: #fff;
+        padding: 10px;
+      }
+
+      .action-button {
+        font-size: 16px;
+        background-color: transparent;
+        border: 1px solid #d3d3d3;
+        color: #6e6e6e;
+        height: 32px;
+        width: 32px;
+        text-align: center;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+      }
+
+      .action-button:hover,
+      .action-button:focus {
+        background: #0079c1;
+        color: #e4e4e4;
+      }
+
+      .active {
+        background: #0079c1;
+        color: #e4e4e4;
+      }
+      
+      #topbar2 {
+        background: #fff;
+        padding: 10px;
+      }
+
+      .action-button2 {
+        font-size: 16px;
+        background-color: transparent;
+        border: 1px solid #d3d3d3;
+        color: #6e6e6e;
+        height: 32px;
+        width: 32px;
+        text-align: center;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+      }
+
+      .action-button2:hover,
+      .action-button2:focus {
+        background: #0079c1;
+        color: #e4e4e4;
+      }
+
+      .active2 {
+        background: #0079c1;
+        color: #e4e4e4;
+      }
     </style>
 
     <link
@@ -63,7 +117,11 @@
         "esri/core/Collection",
         "esri/widgets/HistogramRangeSlider",
         "esri/smartMapping/statistics/histogram",
-        "esri/core/promiseUtils"
+        "esri/core/promiseUtils",
+        "esri/widgets/DirectLineMeasurement3D",
+        "esri/widgets/AreaMeasurement3D",
+        "esri/widgets/DistanceMeasurement2D",
+        "esri/widgets/AreaMeasurement2D"
       ], (Map,
       MapView,
       SceneView,
@@ -76,7 +134,11 @@
       Collection,
       HistogramRangeSlider,
       histogram,
-      promiseUtils
+      promiseUtils,
+      DirectLineMeasurement3D,
+      AreaMeasurement3D, 
+      DistanceMeasurement2D, 
+      AreaMeasurement2D
       ) => {
         const map = new Map({
           basemap: "satellite"
@@ -262,17 +324,183 @@
           });
         });
       });
+        //////////////////////////////Measurement 3D
+        let activeWidget1 = null;
+        // add the toolbar for the measurement widgets
+        view1.ui.add("topbar", "top-right");
 
+        document
+          .getElementById("distanceButton")
+          .addEventListener("click", (event) => {
+            setActiveWidget(null);
+            if (!event.target.classList.contains("active")) {
+              setActiveWidget("distance");
+            } else {
+              setActiveButton(null);
+            }
+          });
+
+        document
+          .getElementById("areaButton")
+          .addEventListener("click", (event) => {
+            setActiveWidget(null);
+            if (!event.target.classList.contains("active")) {
+              setActiveWidget("area");
+            } else {
+              setActiveButton(null);
+            }
+          });
+
+        function setActiveWidget(type) {
+          switch (type) {
+            case "distance":
+              activeWidget1 = new DirectLineMeasurement3D({
+                view: view1
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget1.viewModel.start().catch((error) => {
+                if (promiseUtils.isAbortError(error)) {
+                  return; // don't display abort errors
+                }
+                throw error; // throw other errors since they are of interest
+              });
+
+              view1.ui.add(activeWidget1, "top-right");
+              setActiveButton(document.getElementById("distanceButton"));
+              break;
+            case "area":
+              activeWidget1 = new AreaMeasurement3D({
+                view: view1
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget1.viewModel.start().catch((error) => {
+                if (promiseUtils.isAbortError(error)) {
+                  return; // don't display abort errors
+                }
+                throw error; // throw other errors since they are of interest
+              });
+
+              view1.ui.add(activeWidget1, "top-right");
+              setActiveButton(document.getElementById("areaButton"));
+              break;
+            case null:
+              if (activeWidget1) {
+                view1.ui.remove(activeWidget1);
+                activeWidget1.destroy();
+                activeWidget1 = null;
+              }
+              break;
+          }
+        }
+
+        function setActiveButton(selectedButton) {
+          // focus the view to activate keyboard shortcuts for sketching
+          view1.focus();
+          const elements = document.getElementsByClassName("active");
+          for (let i = 0; i < elements.length; i++) {
+            elements[i].classList.remove("active");
+          }
+          if (selectedButton) {
+            selectedButton.classList.add("active");
+          }
+        }
 
         
         
-          
+        //////////////////////////////Measurement 2D
+        // add the toolbar for the measurement widgets
+        var activeWidget2 = null;
+        view2.ui.add("topbar2", "top-right");
+
+        document
+          .getElementById("distanceButton2")
+          .addEventListener("click", function () {
+            setActiveWidget2(null);
+            if (!this.classList.contains("active")) {
+              setActiveWidget2("distance2");
+            } else {
+              setActiveButton2(null);
+            }
+          });
+
+        document
+          .getElementById("areaButton2")
+          .addEventListener("click", function () {
+            setActiveWidget2(null);
+            if (!this.classList.contains("active")) {
+              setActiveWidget2("area2");
+            } else {
+              setActiveButton2(null);
+            }
+          });
+
+        function setActiveWidget2(type) {
+          switch (type) {
+            case "distance2":
+              activeWidget2 = new DistanceMeasurement2D({
+                view: view2
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget2.viewModel.start();
+
+              view2.ui.add(activeWidget2, "top-right");
+              setActiveButton2(document.getElementById("distanceButton2"));
+              break;
+            case "area2":
+              activeWidget2 = new AreaMeasurement2D({
+                view: view2
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget2.viewModel.start();
+
+              view2.ui.add(activeWidget2, "top-right");
+              setActiveButton2(document.getElementById("areaButton2"));
+              break;
+            case null:
+              if (activeWidget2) {
+                view2.ui.remove(activeWidget2);
+                activeWidget2.destroy();
+                activeWidget2 = null;
+              }
+              break;
+          }
+        }
+
+        function setActiveButton2(selectedButton) {
+          // focus the view to activate keyboard shortcuts for sketching
+          view2.focus();
+          var elements = document.getElementsByClassName("active2");
+          for (var i = 0; i < elements.length; i++) {
+            elements[i].classList.remove("active2");
+          }
+          if (selectedButton) {
+            selectedButton.classList.add("active2");
+          }
+        }
 
       });
     </script>
   </head>
   <body>
     <div id="view1Div" style="float: left; width: 50%; height: 100%">
+      <div id="topbar">
+      <button
+        class="action-button esri-icon-measure-line"
+        id="distanceButton"
+        type="button"
+        title="Meet de afstand tussen twee punten"
+      ></button>
+      <button
+        class="action-button esri-icon-measure-area"
+        id="areaButton"
+        type="button"
+        title="Oppervlaktemeting"
+      ></button>
+    </div>
       <div id="viewSceneDiv"></div>
       <div id="LegendSceneDiv"></div>
         <div id="controls" class="esri-widget">
@@ -285,6 +513,20 @@
     <div id="view2Div" style="float: left; width: 50%; height: 100%">
       <div id="viewMapDiv"></div>
       <div id="LegendMapDiv"></div>
+      <div id="topbar2">
+      <button
+        class="action-button2 esri-icon-measure-line"
+        id="distanceButton2"
+        type="button"
+        title="Measure distance between two or more points"
+      ></button>
+      <button
+        class="action-button2 esri-icon-measure-area"
+        id="areaButton2"
+        type="button"
+        title="Measure area"
+      ></button>
+    </div>
     </div>
   </body>
 </html>
