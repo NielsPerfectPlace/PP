@@ -121,7 +121,8 @@
         "esri/widgets/DirectLineMeasurement3D",
         "esri/widgets/AreaMeasurement3D",
         "esri/widgets/DistanceMeasurement2D",
-        "esri/widgets/AreaMeasurement2D"
+        "esri/widgets/AreaMeasurement2D",
+        "esri/widgets/BasemapGallery"
       ], (Map,
       MapView,
       SceneView,
@@ -138,7 +139,8 @@
       DirectLineMeasurement3D,
       AreaMeasurement3D, 
       DistanceMeasurement2D, 
-      AreaMeasurement2D
+      AreaMeasurement2D,
+      BasemapGallery
       ) => {
         const map = new Map({
           basemap: "satellite"
@@ -481,7 +483,32 @@
             selectedButton.classList.add("active2");
           }
         }
-
+      /////basemap 
+      
+        const basemapGallery1 = new BasemapGallery({
+          view: view1,
+          container: document.createElement("div")
+        });
+        
+        const basemapGallery2 = new BasemapGallery({
+          view: view2,
+          container: document.createElement("div")
+        });
+      
+        const mapBasemap = new Expand({
+          view: view2,
+          content: basemapGallery2
+        });
+        
+        const sceneBasemap = new Expand({
+          view: view1,
+          content: basemapGallery1
+        });
+        
+        view1.ui.add(sceneBasemap, "top-left");
+        
+        view2.ui.add(mapBasemap, "top-left");
+        
       });
     </script>
   </head>
