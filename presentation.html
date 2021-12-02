@@ -122,7 +122,8 @@
         "esri/widgets/AreaMeasurement3D",
         "esri/widgets/DistanceMeasurement2D",
         "esri/widgets/AreaMeasurement2D",
-        "esri/widgets/BasemapGallery"
+        "esri/widgets/BasemapGallery",
+        "esri/widgets/Search"
       ], (Map,
       MapView,
       SceneView,
@@ -140,7 +141,8 @@
       AreaMeasurement3D, 
       DistanceMeasurement2D, 
       AreaMeasurement2D,
-      BasemapGallery
+      BasemapGallery,
+      Search
       ) => {
         const map = new Map({
           basemap: "satellite"
@@ -508,6 +510,26 @@
         view1.ui.add(sceneBasemap, "top-left");
         
         view2.ui.add(mapBasemap, "top-left");
+        
+        ///////////////Search//////////
+        
+        const searchWidget1 = new Search({
+            view: view1
+          });
+          // Adds the search widget below other elements in
+          // the top left corner of the view
+          
+        const searchExpand1 = new Expand({
+          view: view1,
+          content: searchWidget1
+        });
+          
+          view1.ui.add(searchExpand1, {
+            position: "top-left",
+            index: 2
+          });
+          
+
         
       });
     </script>
