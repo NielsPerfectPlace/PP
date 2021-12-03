@@ -5,6 +5,12 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
+    <!--
+     ArcGIS API for JavaScript, https://js.arcgis.com
+     For more information about the intro-mapview sample,
+     read the original sample description at developers.arcgis.com.
+     https://developers.arcgis.com/javascript/latest/sample-code/intro-mapview/
+     -->
     <title>
       Synchronize MapView and SceneView | Sample | ArcGIS API for JavaScript
       4.21
@@ -17,7 +23,7 @@
         margin: 0;
         height: 100%;
       }
-      
+
        #controls {
          width: 500px;
        }
@@ -41,7 +47,7 @@
          font-weight: 60;
          padding-bottom: 10px;
        }
-       
+
        #topbar {
         background: #fff;
         padding: 10px;
@@ -68,7 +74,7 @@
         background: #0079c1;
         color: #e4e4e4;
       }
-      
+
       #topbar2 {
         background: #fff;
         padding: 10px;
@@ -124,25 +130,26 @@
         "esri/widgets/AreaMeasurement2D",
         "esri/widgets/BasemapGallery",
         "esri/widgets/Search"
-      ], (Map,
-      MapView,
-      SceneView,
-      WebMap,
-      WebScene,
-      LayerList,
-      Expand,
-      Legend,
-      watchUtils,
-      Collection,
-      HistogramRangeSlider,
-      histogram,
-      promiseUtils,
-      DirectLineMeasurement3D,
-      AreaMeasurement3D, 
-      DistanceMeasurement2D, 
-      AreaMeasurement2D,
-      BasemapGallery,
-      Search
+      ], (
+        Map,
+        MapView,
+        SceneView,
+        WebMap,
+        WebScene,
+        LayerList,
+        Expand,
+        Legend,
+        watchUtils,
+        Collection,
+        HistogramRangeSlider,
+        histogram,
+        promiseUtils,
+        DirectLineMeasurement3D,
+        AreaMeasurement3D,
+        DistanceMeasurement2D,
+        AreaMeasurement2D,
+        BasemapGallery,
+        Search
       ) => {
         const map = new Map({
           basemap: "satellite"
@@ -159,7 +166,6 @@
             id: "936a3047186f457db20693f359ce90ae"
           }
         });
-        
 
         const view1 = new SceneView({
           container: "view1Div",
@@ -174,41 +180,38 @@
             snapToZoom: false
           }
         });
-        
+
         let sceneLayer = new LayerList({
           view: view1,
           container: document.createElement("div")
         });
-        
+
         let webLayer = new LayerList({
           view: view2,
           container: document.createElement("div")
         });
-        
-
 
         const views = [view1, view2];
         let active;
-        
-         /////////////////////////////
+
+        /////////////////////////////
         const sceneExpand = new Expand({
           view: view1,
           content: sceneLayer
         });
-        
+
         const mapExpand = new Expand({
           view: view2,
           content: webLayer
         });
-        
+
         view1.ui.add(sceneExpand, "top-right");
-        
+
         view2.ui.add(mapExpand, "top-right");
 
         // close the expand whenever a basemap is selected
 
-          /////////////////////////////
-
+        /////////////////////////////
 
         const sync = (source) => {
           if (!active || !active.viewpoint || active !== source) {
@@ -229,105 +232,106 @@
           });
 
           view.watch("viewpoint", () => sync(view));
-          
         }
-        
-      const legend1 = new Legend ({
-        view:view1,
-        container: document.createElement("div")
-      });
 
-      
-      const legend2 = new Legend ({
-        view:view2,
-        container: document.createElement("div")
-      });
-      
+        const legend1 = new Legend({
+          view: view1,
+          container: document.createElement("div")
+        });
+
+        const legend2 = new Legend({
+          view: view2,
+          container: document.createElement("div")
+        });
+
         const mapLegendExpand = new Expand({
           view: view2,
           content: legend2
         });
-        
+
         const sceneLegendExpand = new Expand({
           view: view1,
           content: legend1
         });
-        
+
         view1.ui.add(sceneLegendExpand, "bottom-left");
-        
+
         view2.ui.add(mapLegendExpand, "bottom-left");
-        
 
         // Listen to layer change events on all of map's layers
-        
-          const filterExpand = new Expand({
-              view: view1,
-              content: document.getElementById("controls"),
-              expandIconClass: "esri-icon-filter",
-              expanded: false
-              
-            });
 
-          view1.ui.add(filterExpand, "top-left");
-        
-        var count = 0
+        const filterExpand = new Expand({
+          view: view1,
+          content: document.getElementById("controls"),
+          expandIconClass: "esri-icon-filter",
+          expanded: false
+        });
+
+        view1.ui.add(filterExpand, "top-left");
+
+        var count = 0;
+        console.log(count)
         // Only listening to layer added event in this case.
         // Listen the view's click event.
         view1.on("pointer-move", (event) => {
-          if (count===1){
+          console.log(count)
+          if (count === 1) {
+            
             return;
           }
-          count = count + 1
-          console.log('test')
-          const layer = webscene.layers.getItemAt(10);
+          count = count + 1;
+          console.log("test");
+          const layer = webscene.layers.getItemAt(11);
+          console.log(layer)
           const layer2 = webmap.layers.getItemAt(7);
-          
+          console.log(layer2)
+
           view1.whenLayerView(layer).then((layerView) => {
-          const field = "bouwjaar";
-          const min = 1950;
-          const max = 2021;
+            const field = "bouwjaar";
+            const min = 1950;
+            const max = 2021;
 
-          histogram({
-            layer: layer,
-            field: field,
-            numBins: 100,
-            minValue: min,
-            maxValue: max
-          }).then((histogramResponse) => {
-            const slider = new HistogramRangeSlider({
-              bins: histogramResponse.bins,
-              min: min,
-              max: max,
-              values: [min, max],
-              excludedBarColor: "#524e4e",
-              rangeType: "between",
-              container: document.getElementById("slider-container")
-            });
+            histogram({
+              layer: layer,
+              field: field,
+              numBins: 100,
+              minValue: min,
+              maxValue: max
+            }).then((histogramResponse) => {
+              const slider = new HistogramRangeSlider({
+                bins: histogramResponse.bins,
+                min: min,
+                max: max,
+                values: [min, max],
+                excludedBarColor: "#524e4e",
+                rangeType: "between",
+                container: document.getElementById("slider-container")
+              });
 
-            slider.on(
-              ["thumb-change", "thumb-drag", "segment-drag"],
-              (event) => {
-                filterByHistogramRange(field).catch((error) => {
-                  if (error.name !== "AbortError") {
-                    console.error(error);
-                  }
+              slider.on(
+                ["thumb-change", "thumb-drag", "segment-drag"],
+                (event) => {
+                  filterByHistogramRange(field).catch((error) => {
+                    if (error.name !== "AbortError") {
+                      console.error(error);
+                    }
+                  });
+                }
+              );
+
+              const filterByHistogramRange = promiseUtils.debounce((field) => {
+                view2.whenLayerView(layer2).then((layerView) => {
+                  layerView.filter = {
+                    where: slider.generateWhereClause(field)
+                  };
                 });
-              }
-            );
-
-            const filterByHistogramRange = promiseUtils.debounce((field) => {
-              view2.whenLayerView(layer2).then((layerView) => {layerView.filter = {
-                where: slider.generateWhereClause(field)
-              };});
-              layerView.filter = {
-                where: slider.generateWhereClause(field)
-              };
-              
+                layerView.filter = {
+                  where: slider.generateWhereClause(field)
+                };
+              });
             });
-
           });
         });
-      });
         //////////////////////////////Measurement 3D
         let activeWidget1 = null;
         // add the toolbar for the measurement widgets
@@ -411,8 +415,6 @@
           }
         }
 
-        
-        
         //////////////////////////////Measurement 2D
         // add the toolbar for the measurement widgets
         var activeWidget2 = null;
@@ -485,97 +487,96 @@
             selectedButton.classList.add("active2");
           }
         }
-      /////basemap 
-      
+        /////basemap
+
         const basemapGallery1 = new BasemapGallery({
           view: view1,
           container: document.createElement("div")
         });
-        
+
         const basemapGallery2 = new BasemapGallery({
           view: view2,
           container: document.createElement("div")
         });
-      
+
         const mapBasemap = new Expand({
           view: view2,
           content: basemapGallery2
         });
-        
+
         const sceneBasemap = new Expand({
           view: view1,
           content: basemapGallery1
         });
-        
+
         view1.ui.add(sceneBasemap, "top-left");
-        
+
         view2.ui.add(mapBasemap, "top-left");
-        
+
         ///////////////Search//////////
-        
+
         const searchWidget1 = new Search({
-            view: view1
-          });
-          // Adds the search widget below other elements in
-          // the top left corner of the view
-          
+          view: view1
+        });
+        // Adds the search widget below other elements in
+        // the top left corner of the view
+
         const searchExpand1 = new Expand({
           view: view1,
           content: searchWidget1
         });
-          
-          view1.ui.add(searchExpand1, {
-            position: "top-left",
-            index: 2
-          });
-          
 
-        
+        view1.ui.add(searchExpand1, {
+          position: "top-left",
+          index: 2
+        });
       });
     </script>
   </head>
   <body>
     <div id="view1Div" style="float: left; width: 50%; height: 100%">
       <div id="topbar">
-      <button
-        class="action-button esri-icon-measure-line"
-        id="distanceButton"
-        type="button"
-        title="Meet de afstand tussen twee punten"
-      ></button>
-      <button
-        class="action-button esri-icon-measure-area"
-        id="areaButton"
-        type="button"
-        title="Oppervlaktemeting"
-      ></button>
-    </div>
+        <button
+          class="action-button esri-icon-measure-line"
+          id="distanceButton"
+          type="button"
+          title="Meet de afstand tussen twee punten"
+        ></button>
+        <button
+          class="action-button esri-icon-measure-area"
+          id="areaButton"
+          type="button"
+          title="Oppervlaktemeting"
+        ></button>
+      </div>
       <div id="viewSceneDiv"></div>
       <div id="LegendSceneDiv"></div>
-        <div id="controls" class="esri-widget">
-          <div id="description" class="esri-widget"> <center><bold>Pand bouwjaar</bold></center> </div>
-          <div id="outer-container" class="esri-widget">
-            <div id="slider-container"></div>
-          </div>
+      <div id="controls" class="esri-widget">
+        <div id="description" class="esri-widget">
+          <center><bold>Pand bouwjaar</bold></center>
+        </div>
+        <div id="outer-container" class="esri-widget">
+          <div id="slider-container"></div>
+        </div>
       </div>
     </div>
     <div id="view2Div" style="float: left; width: 50%; height: 100%">
       <div id="viewMapDiv"></div>
       <div id="LegendMapDiv"></div>
       <div id="topbar2">
-      <button
-        class="action-button2 esri-icon-measure-line"
-        id="distanceButton2"
-        type="button"
-        title="Measure distance between two or more points"
-      ></button>
-      <button
-        class="action-button2 esri-icon-measure-area"
-        id="areaButton2"
-        type="button"
-        title="Measure area"
-      ></button>
-    </div>
+        <button
+          class="action-button2 esri-icon-measure-line"
+          id="distanceButton2"
+          type="button"
+          title="Measure distance between two or more points"
+        ></button>
+        <button
+          class="action-button2 esri-icon-measure-area"
+          id="areaButton2"
+          type="button"
+          title="Measure area"
+        ></button>
+      </div>
     </div>
   </body>
 </html>
